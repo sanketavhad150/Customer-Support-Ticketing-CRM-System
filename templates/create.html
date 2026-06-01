@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Ticket – Support CRM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <nav class="bg-indigo-700 text-white px-6 py-4 flex items-center justify-between shadow">
+    <a href="/" class="text-xl font-bold tracking-wide">🎫 Support CRM</a>
+    <a href="/" class="text-sm text-indigo-200 hover:text-white">← Back to Tickets</a>
+  </nav>
+
+  <main class="max-w-xl mx-auto px-4 py-10">
+    <div class="bg-white rounded-xl shadow p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6">Create New Ticket</h1>
+
+      <form id="ticketForm" class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+          <input name="customer_name" required placeholder="John Doe"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Customer Email</label>
+          <input name="customer_email" type="email" required placeholder="john@example.com"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Issue Subject</label>
+          <input name="subject" required placeholder="Brief title of the issue"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea name="description" required rows="4" placeholder="Describe the issue in detail…"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"></textarea>
+        </div>
+
+        <div id="msg" class="hidden text-sm font-medium rounded-lg px-4 py-2"></div>
+
+        <button type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition">
+          Submit Ticket
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById("ticketForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const body = Object.fromEntries(fd.entries());
+      const msg = document.getElementById("msg");
+
+      const res = await fetch("/api/tickets", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        msg.className = "text-sm font-medium rounded-lg px-4 py-2 bg-green-100 text-green-700";
+        msg.textContent = `✅ Ticket ${data.ticket_id} created! Redirecting…`;
+        msg.classList.remove("hidden");
+        setTimeout(() => window.location.href = `/ticket/${data.ticket_id}`, 1500);
+      } else {
+        msg.className = "text-sm font-medium rounded-lg px-4 py-2 bg-red-100 text-red-700";
+        msg.textContent = "❌ Failed to create ticket. Please try again.";
+        msg.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
